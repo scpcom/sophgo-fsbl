@@ -1,5 +1,14 @@
 #include <platform.h>
 #include <arch_helpers.h>
+#include "thead_csr.h"
+
+#ifndef __ASM_STR
+#ifdef __ASSEMBLY__
+#define __ASM_STR(x)	x
+#else
+#define __ASM_STR(x)	#x
+#endif
+#endif
 
 //typedef uint64_t phys_addr_t;
 //typedef uintptr_t       size_t;
@@ -36,6 +45,12 @@
 		__asm__ __volatile__(OP); \
 	 __asm__ __volatile__(SYNC_S)
 
+#define set_dcache_csr(csr, val) \
+	asm volatile("csrs " __ASM_STR(csr) ", %0;" ::"rI"(val))
+
+#define clear_dcache_csr(csr, val) \
+	asm volatile("csrc " __ASM_STR(csr) ", %0;" ::"rI"(val))
+
 //void c900_cache_invalidate(phys_addr_t start, size_t size)
 void inv_dcache_range(uintptr_t start, size_t size)
 {
@@ -56,15 +71,11 @@ void flush_dcache_range(uintptr_t start, size_t size)
 
 void enable_dcache(void)
 {
-	asm volatile(
-		"csrs mhcr, %0;" ::"rI"(0x2)
-	);
+	set_dcache_csr(CSR_MHCR, 0x2);
 }
 
 void disable_dcache(void)
 {
-	asm volatile(
-		"csrc mhcr, %0;" ::"rI"(0x2)
-	);
+	clear_dcache_csr(CSR_MHCR, 0x2);
 }
 
