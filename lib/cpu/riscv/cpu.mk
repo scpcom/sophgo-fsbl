@@ -44,6 +44,8 @@ TF_LDFLAGS += \
 	--gc-sections \
 	${TF_LDFLAGS_aarch64}
 
+TF_LDFLAGS += $(call ld-option, --no-warn-rwx-segments)
+
 ifeq ($(toolchain-need-xtheadcmo1p0-xtheadsync1p0),y)
 TF_CFLAGS += -DTOOLCHAIN_NEED_XTHEADCMO1P0_XTHEADSYNC1P0
 endif
