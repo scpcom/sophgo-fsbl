@@ -11,8 +11,13 @@
 void sync_cache(void)
 {
 	asm volatile(
+#ifdef TOOLCHAIN_NEED_XTHEADCMO1P0_XTHEADSYNC1P0
+			"th.icache.iall\n"
+			"th.sync.i\n"
+#else
 			"icache.iall\n"
 			"sync.i\n"
+#endif
 			:
 			:
 			: "memory");

@@ -1,21 +1,40 @@
 #include lib/cpu/${BOOT_CPU}/cpu-ops.mk
 
+ABI = lp64d
+
+RISCV_MARCH = rv64imafdc
+
+# Newer binutils versions default to ISA spec version 20191213 which moves some
+# instructions from the I extension to the Zicsr and Zifencei extensions.
+toolchain-need-zicsr-zifencei := $(call cc-option-yn, -mabi=$(ABI) -march=$(RISCV_MARCH)_zicsr_zifencei)
+ifeq ($(toolchain-need-zicsr-zifencei),y)
+	toolchain-need-xtheadcmo1p0-xtheadsync1p0 := $(call cc-option-yn, -mabi=$(ABI) -march=$(RISCV_MARCH)_xtheadcmo1p0_xtheadsync1p0)
+endif
+ifeq ($(toolchain-need-xtheadcmo1p0-xtheadsync1p0),y)
+	RISCV_MARCH := $(RISCV_MARCH)_xtheadcmo1p0_xtheadsync1p0
+else
+	RISCV_MARCH := $(RISCV_MARCH)xthead
+endif
+ifeq ($(toolchain-need-zicsr-zifencei),y)
+	RISCV_MARCH := $(RISCV_MARCH)_zicsr_zifencei
+endif
+
 ASFLAGS +=\
 	$(CPPFLAGS) \
 	-DRISCV \
 	-D__ASSEMBLY__ \
-	-march=rv64imafdcvxthead -mstrict-align \
+	-march=$(RISCV_MARCH) -mstrict-align \
 	-mcmodel=medany \
-	-mabi=lp64d \
+	-mabi=$(ABI) \
 	-ffreestanding  \
 	-Wa,--fatal-warnings
 
 TF_CFLAGS += \
 	$(CPPFLAGS) \
 	-DRISCV \
-	-march=rv64imafdcvxthead \
+	-march=$(RISCV_MARCH) \
 	-mcmodel=medany \
-	-mabi=lp64d \
+	-mabi=$(ABI) \
 	-ffreestanding -fno-builtin -Wall -std=gnu99 \
 	-Os -ffunction-sections -fdata-sections \
 	-fno-delete-null-pointer-checks
@@ -24,6 +43,10 @@ TF_LDFLAGS += \
 	--fatal-warnings -Os \
 	--gc-sections \
 	${TF_LDFLAGS_aarch64}
+
+ifeq ($(toolchain-need-xtheadcmo1p0-xtheadsync1p0),y)
+TF_CFLAGS += -DTOOLCHAIN_NEED_XTHEADCMO1P0_XTHEADSYNC1P0
+endif
 
 CPU_INCLUDES := \
 	-Iinclude/cpu/${BOOT_CPU} \

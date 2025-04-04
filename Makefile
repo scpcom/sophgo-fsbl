@@ -102,6 +102,7 @@ GDB			:=	${CROSS_COMPILE}gdb
 include ${MAKE_HELPERS_DIRECTORY}unix.mk
 include ${MAKE_HELPERS_DIRECTORY}build_macros.mk
 include ${MAKE_HELPERS_DIRECTORY}plat_helpers.mk
+include ${MAKE_HELPERS_DIRECTORY}Kbuild.include
 
 ################################################################################
 # Common sources and include directories
