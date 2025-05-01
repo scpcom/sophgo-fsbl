@@ -19,6 +19,8 @@ TF_LDFLAGS += \
 	--gc-sections \
 	${TF_LDFLAGS_aarch64}
 
+TF_LDFLAGS += $(call ld-option, --no-warn-rwx-segments)
+
 CPU_INCLUDES :=
 
 CPU_SOURCES := \
