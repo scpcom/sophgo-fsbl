@@ -18,13 +18,13 @@ ifeq ($(toolchain-need-zicsr-zifencei),y)
 	toolchain-need-xtheadcmo1p0-xtheadsync1p0 := $(call cc-option-yn, -mabi=$(ABI) -march=$(RISCV_MARCH)_xtheadcmo1p0_xtheadsync1p0)
 endif
 endif
+ifeq ($(toolchain-need-zicsr-zifencei),y)
+	RISCV_MARCH := $(RISCV_MARCH)_zicsr_zifencei
+endif
 ifeq ($(toolchain-need-xtheadcmo1p0-xtheadsync1p0),y)
 	RISCV_MARCH := $(RISCV_MARCH)_xtheadcmo1p0_xtheadsync1p0
 else
 	RISCV_MARCH := $(RISCV_MARCH)xthead
-endif
-ifeq ($(toolchain-need-zicsr-zifencei),y)
-	RISCV_MARCH := $(RISCV_MARCH)_zicsr_zifencei
 endif
 
 ASFLAGS +=\
