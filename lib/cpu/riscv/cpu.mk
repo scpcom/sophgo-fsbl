@@ -5,15 +5,15 @@ ABI = lp64d
 RISCV_MARCH = rv64imafdc
 
 ifeq ($(call cc-option-yn, -mcpu=thead-c906 -mabi=$(ABI) -march=$(RISCV_MARCH)),y)
-RISCV_CPU = thead-c906
-else
-RISCV_CPU = c906fdv
+RISCV_CPU = -mcpu=thead-c906
+else ifeq ($(call cc-option-yn, -mcpu=c906fdv -mabi=$(ABI) -march=$(RISCV_MARCH)),y)
+RISCV_CPU = -mcpu=c906fdv
 endif
 
-ifeq ($(RISCV_CPU),thead-c906)
+ifneq ($(RISCV_CPU),-mcpu=c906fdv)
 # Newer binutils versions default to ISA spec version 20191213 which moves some
 # instructions from the I extension to the Zicsr and Zifencei extensions.
-toolchain-need-zicsr-zifencei := $(call cc-option-yn, -mcpu=$(RISCV_CPU) -mabi=$(ABI) -march=$(RISCV_MARCH)_zicsr_zifencei)
+toolchain-need-zicsr-zifencei := $(call cc-option-yn, $(RISCV_CPU) -mabi=$(ABI) -march=$(RISCV_MARCH)_zicsr_zifencei)
 ifeq ($(toolchain-need-zicsr-zifencei),y)
 	toolchain-need-xtheadcmo1p0-xtheadsync1p0 := $(call cc-option-yn, -mabi=$(ABI) -march=$(RISCV_MARCH)_xtheadcmo1p0_xtheadsync1p0)
 endif
